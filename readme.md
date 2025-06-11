@@ -8,5 +8,36 @@ c++开发练手项目
 
 - 2025.6.11 
   - 资源文件添加完成.
-  - 完成按钮图标的初始化.
+  - 完成按钮图标的初始化，按钮添加悬停与点击效果.
   - 完成背景的设置.
+  - 完成音乐媒体器的环境配置，支持点击播放音乐，但是每次暂停后要从头开始播放.
+
+### 环境问题
+
+- 安装qt5-multimedia库
+  ```shell
+  sudo apt-get install qtmultimedia5-dev
+  ```
+
+- 安装核心 GStreamer 插件和 Qt 多媒体支持
+  ```shell
+  sudo apt install gstreamer1.0-plugins-base \
+                 gstreamer1.0-plugins-good \
+                 gstreamer1.0-plugins-bad \
+                 gstreamer1.0-plugins-ugly \
+                 gstreamer1.0-libav \
+                 libgstreamer-plugins-base1.0-dev \
+                 qtmultimedia5-dev \
+                 libqt5multimedia5-plugins
+  ```
+  测试是否可以播放
+  ```shell
+  gst-launch-1.0 playbin uri=file:///home/cjj/Music/起风了-动漫唯美风.ogg
+  ```
+
+### 其他
+
+- .mp3转.wav
+  ```shell
+  ffmpeg -i <origin.mp3> <origin.wav>
+  ```

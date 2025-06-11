@@ -7,18 +7,18 @@
     <x>0</x>
     <y>0</y>
     <width>740</width>
-    <height>495</height>
+    <height>528</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>380</y>
+      <x>30</x>
+      <y>390</y>
       <width>561</width>
       <height>91</height>
      </rect>

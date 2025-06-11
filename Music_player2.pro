@@ -18,4 +18,4 @@ RESOURCES += resources/res.qrc
 FORMS += UI/cjj.ui
 SOURCES += src/main.cpp src/window_cjj.cpp
 HEADERS += include/window_cjj.h
-QT += widgets
+QT += core gui widgets multimedia multimediawidgets
