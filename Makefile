@@ -410,6 +410,7 @@ qrc_res.cpp: resources/res.qrc \
 		resources/icons/stop.png \
 		resources/icons/music_menu.png \
 		resources/icons/loop_play.png \
+		resources/icons/music_list.png \
 		resources/icons/random_play.png \
 		resources/icons/next_p.png \
 		resources/icons/begin.png \
@@ -427,6 +428,7 @@ compiler_moc_header_make_all: moc_window_cjj.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_window_cjj.cpp
 moc_window_cjj.cpp: include/window_cjj.h \
+		include/qt_common.h \
 		include/ui_cjj.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -454,12 +456,13 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 ####### Compile
 
 main.o: src/main.cpp include/window_cjj.h \
+		include/qt_common.h \
 		include/ui_cjj.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o src/main.cpp
 
 window_cjj.o: src/window_cjj.cpp include/window_cjj.h \
-		include/ui_cjj.h \
-		include/qt_common.h
+		include/qt_common.h \
+		include/ui_cjj.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window_cjj.o src/window_cjj.cpp
 
 qrc_res.o: qrc_res.cpp 

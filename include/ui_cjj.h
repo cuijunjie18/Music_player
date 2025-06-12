@@ -12,8 +12,8 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QWidget>
@@ -31,7 +31,7 @@ public:
     QPushButton *next_button;
     QPushButton *play_mode;
     QPushButton *play_list;
-    QMenuBar *menubar;
+    QListWidget *music_list;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -72,11 +72,10 @@ public:
 
         horizontalLayout->addWidget(play_list);
 
+        music_list = new QListWidget(centralwidget);
+        music_list->setObjectName(QString::fromUtf8("music_list"));
+        music_list->setGeometry(QRect(575, 30, 161, 281));
         MainWindow->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(MainWindow);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 740, 22));
-        MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         MainWindow->setStatusBar(statusbar);

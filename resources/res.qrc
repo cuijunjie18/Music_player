@@ -9,6 +9,7 @@
         <file>icons/random_play.png</file>
         <file>icons/sequence_play.png</file>
         <file>icons/stop.png</file>
+        <file>icons/music_list.png</file>
         <file>backgrounds/a.png</file>
     </qresource>
 </RCC>

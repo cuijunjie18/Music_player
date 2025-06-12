@@ -1,10 +1,15 @@
 #include "window_cjj.h"
 #include "qt_common.h"
+#include <stdlib.h>
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    play_mode(Sequence_mode) // 初始化为顺序播放
 {
+    /* 设计随机数种子 */
+    srand((time(NULL)));
+
     /* 设置UI界面 */
     ui->setupUi(this);
 
@@ -15,32 +20,34 @@ MainWindow::MainWindow(QWidget* parent) :
     setFixedSize(this->size());
 
     /* 设置背景图片 */
-    set_background(":/backgrounds/a.png");
+    SetBackground(":/backgrounds/a.png");
 
     /* 初始化按钮 */
-    init_button();
-    connect_button();
+    InitButton();
+    ConnectButton();
 
     /* 检查多媒体服务是否可用 */
-    check_multimedia_service();
+    CheckMultimediaService();
 
     // 使用多媒体
     music_player = new QMediaPlayer(this);
-    QString music_path = "/home/cjj/Music/起风了-动漫唯美风.ogg";
-    music_player->setMedia(QUrl::fromLocalFile(music_path));
+
+    // 构建歌曲列表
+    QString music_dir = "/home/cjj/Music";
+    BuildMusicList(music_dir);
 }
 
 // 初始化按钮
-void MainWindow::init_button(){
-    set_button_style(ui->pre_button,":/icons/pre_p.png");
-    set_button_style(ui->open_button, ":/icons/begin.png");  // 一开始为等待开启图标
-    set_button_style(ui->next_button, ":/icons/next_p.png");
-    set_button_style(ui->play_mode, ":/icons/sequence_play.png");
-    set_button_style(ui->play_list, ":/icons/music_menu.png");
+void MainWindow::InitButton(){
+    SetButtonStyle(ui->pre_button,":/icons/pre_p.png");
+    SetButtonStyle(ui->open_button, ":/icons/begin.png");  // 一开始为等待开启图标
+    SetButtonStyle(ui->next_button, ":/icons/next_p.png");
+    SetButtonStyle(ui->play_mode, ":/icons/sequence_play.png");
+    SetButtonStyle(ui->play_list, ":/icons/music_list.png");
 }
 
 // 设置按钮样式
-void MainWindow::set_button_style(QPushButton *button,const QString &filename,
+void MainWindow::SetButtonStyle(QPushButton *button,const QString &filename,
         int w,int h){
     if (!QFile::exists(filename)){
         qCritical() << filename << "is not found!" << "\n"; 
@@ -72,12 +79,16 @@ void MainWindow::set_button_style(QPushButton *button,const QString &filename,
 }
 
 // 按钮绑定槽函数
-void MainWindow::connect_button(){
-    connect(ui->open_button,&QPushButton::clicked,this,&MainWindow::play_or_stop);
+void MainWindow::ConnectButton(){
+    connect(ui->open_button,&QPushButton::clicked,this,&MainWindow::HandleOpenButton);
+    connect(ui->play_mode,&QPushButton::clicked,this,&MainWindow::HandlePlayMode);
+    connect(ui->pre_button,&QPushButton::clicked,this,&MainWindow::HandlePreButton);
+    connect(ui->next_button,&QPushButton::clicked,this,&MainWindow::HandleNextButton);
+    connect(ui->play_list,&QPushButton::clicked,this,&MainWindow::HandlePlayList);
 }
 
 // 设置背景
-void MainWindow::set_background(const QString &filename){
+void MainWindow::SetBackground(const QString &filename){
     if (!QFile::exists(filename)){
         qCritical() << filename << "is not found!" << "\n"; 
         // qFatal("%s is not found",&filename.toStdString()[0]);
@@ -99,7 +110,7 @@ void MainWindow::set_background(const QString &filename){
 }
 
 // 检测multimedia_service
-void MainWindow::check_multimedia_service(){
+void MainWindow::CheckMultimediaService(){
     QMediaPlayer demo;
     if (!demo.isAvailable()) {
         QMessageBox::critical(this, "多媒体服务错误",
@@ -111,25 +122,133 @@ void MainWindow::check_multimedia_service(){
 }
 
 // 使用QSoundEffect播放音乐： 仅支持.wav格式
-void MainWindow::demo_use_QSoundEffect(const QString &music_path){
+void MainWindow::DemoQSoundEffect(const QString &music_path){
     // 多媒体不可用，用声音
     QSoundEffect *effect = new QSoundEffect(this);
     effect->setSource(QUrl::fromLocalFile(music_path));
     effect->play();
 }
 
+// 使用QMediaPlayer播放音乐
+void MainWindow::DemoQMediaMusic(const QString &music_path){
+    music_player->setMedia(QUrl::fromLocalFile(music_path));
+    if (music_player->state() == QMediaPlayer::StoppedState) qDebug() << "Music is stopped" << "\n";
+    music_player->play();
+}
+
+// 获取音乐列表
+void MainWindow::BuildMusicList(const QString &music_dir){
+    QDir dir(music_dir);
+    if (!dir.exists()){
+        QMessageBox::warning(this,"音乐列表",\
+            "文件夹不存在!\n"
+            "请重新确认文件夹路径!\n");
+    }
+    music_list = dir.entryInfoList(QDir::Files);
+
+    if (music_list.size() == 0){
+        QMessageBox::warning(this,"音乐列表",
+            "音乐列表为空!\n"
+            "请重新确认文件夹路径!\n");
+    }
+
+    music_nums = music_list.size();
+    music_index = 0; // 默认第一首歌
+
+    for (auto music : music_list){
+        // ui->music_list->addItem(music.fileName());
+        ui->music_list->addItem(music.baseName());
+    }
+    ui->music_list->setCurrentRow(0); // 初始化显示第1首歌
+}
 
 /*槽函数集合*/
-void MainWindow::play_or_stop(){
-    play_flag ^= 1; // 状态取反
-    if (play_flag){
-        set_button_style(ui->open_button, ":/icons/stop.png");
+void MainWindow::HandleOpenButton(){
+    QMediaPlayer::State state = music_player->state();
+    if (state == QMediaPlayer::PausedState){
+        SetButtonStyle(ui->open_button, ":/icons/stop.png");
         music_player->play();
     }
-    else{
-        set_button_style(ui->open_button, ":/icons/begin.png");
-        music_player->stop();
+    else if (state == QMediaPlayer::PlayingState){
+        SetButtonStyle(ui->open_button, ":/icons/begin.png");
+        music_player->pause(); // 用pause而不是stop
     }
+    else if (state == QMediaPlayer::StoppedState){
+        SetButtonStyle(ui->open_button,":/icons/stop.png");
+        music_player->play();
+        // qDebug() << "Music is start!" << "\n";
+    }
+}
+void MainWindow::HandlePlayMode(){
+    int temp = (play_mode + 1) % 3;
+    play_mode = static_cast<PlayMode>(temp);
+    // qDebug() << play_mode << "\n";
+    switch (play_mode) {
+    case Sequence_mode:
+        SetButtonStyle(ui->play_mode, ":/icons/sequence_play.png");
+        break;
+    case Random_mode:
+        SetButtonStyle(ui->play_mode, ":/icons/random_play.png");
+        break;
+    case Loop_mode:
+        SetButtonStyle(ui->play_mode, ":/icons/loop_play.png");
+        break;
+    default:break;
+    }
+}
+void MainWindow::HandlePreButton(){
+    switch (play_mode) {
+    case Sequence_mode:
+        music_index = (music_index - 1 + music_nums) % music_nums;
+        // music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].fileName()));
+        // music_player->play();
+        break;
+    case Random_mode:{
+        int pre_save = music_index;
+        do{
+            music_index = rand() % music_nums;
+        } while (pre_save == music_index);
+        break;
+    }
+    case Loop_mode:
+        break;
+    default:
+        qWarning() << "Play mode is not exist!" << "\n";
+        break;
+    }
+    UpdateMusic();
+    qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
+}
+void MainWindow::HandleNextButton(){
+    switch (play_mode) {
+    case Sequence_mode:
+        music_index = (music_index + 1) % music_nums;
+        // music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].fileName()));
+        // music_player->play();
+        break;
+    case Random_mode:{
+        int pre_save = music_index;
+        do{
+            music_index = rand() % music_nums;
+        } while (pre_save == music_index);
+        break;
+    }
+    case Loop_mode:
+        break;
+    default:
+        qWarning() << "Play mode is not exist!" << "\n";
+        break;
+    }
+    qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
+    UpdateMusic();
+}
+void MainWindow::HandlePlayList(){
+    
+}
+
+// 用music_index更新音乐UI和播放
+void MainWindow::UpdateMusic(){
+    ui->music_list->setCurrentRow(music_index);
 }
 
 // 析构函数，释放类资源
