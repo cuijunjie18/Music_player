@@ -41,6 +41,7 @@ private slots:
     void HandlePlayList();
     void HandleMusicPosition(qint64 position); // 处理音乐进度
     void HandleMusicDuration(qint64 duration); // 处理音乐时长
+    void HandleMusicChoose(QListWidgetItem *item); // 选中切歌
 private:
     Ui::MainWindow* ui; // 指向ui的指针
     QMediaPlayer* music_player; // 音频播放器

@@ -92,6 +92,7 @@ void MainWindow::ConnectSlot(){
     connect(ui->pre_button,&QPushButton::clicked,this,&MainWindow::HandlePreButton);
     connect(ui->next_button,&QPushButton::clicked,this,&MainWindow::HandleNextButton);
     connect(ui->play_list,&QPushButton::clicked,this,&MainWindow::HandlePlayList);
+    connect(ui->music_list,&QListWidget::itemClicked,this,&MainWindow::HandleMusicChoose);
     connect(music_player,&QMediaPlayer::positionChanged,this,&MainWindow::HandleMusicPosition); // 处理音乐进度
     connect(music_player,&QMediaPlayer::durationChanged,this,&MainWindow::HandleMusicDuration); // 处理音乐时长
 }
@@ -126,7 +127,18 @@ void MainWindow::BeautifyMusicList(){
         "border-radius: 20px;"
         "background: rgba(255,255,255,0.7);"
         "}"
+        "QListWidget::item:hover {"
+        "   background-color: #f0f7ff;"  // 悬停背景色
+        "   border-left: 3px solid #4a90e2;"  // 左侧高亮条
+        "   color: #0056b3;"  // 文字颜色
+        "   font-weight: bold;"  // 加粗字体
+        "}"
+        "QListWidget::item:selected {"
+        "   background-color: #d1e7ff;"  // 选中状态
+        "   color: #003366;"
+        "}"
     );
+    // for (auto label:ui->music_list->)
 }
 
 // 获取音乐列表
@@ -260,6 +272,11 @@ void MainWindow::HandleMusicDuration(qint64 duaration){
     ui->music_Slider->setRange(0,duaration);
     qint64 seconds = MillsencondsToSeconds(duaration);
     ui->total_time->setText(Seconds2DurationFormat(seconds));
+}
+void MainWindow::HandleMusicChoose(QListWidgetItem *item){
+    ui->music_list->setCurrentItem(item);
+    music_index = ui->music_list->currentRow();
+    UpdateMusic();
 }
 
 // 动画显示音乐列表
