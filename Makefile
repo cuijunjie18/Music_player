@@ -53,10 +53,12 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = src/main.cpp \
-		src/window_cjj.cpp qrc_res.cpp \
+		src/window_cjj.cpp \
+		src/utils.cpp qrc_res.cpp \
 		moc_window_cjj.cpp
 OBJECTS       = main.o \
 		window_cjj.o \
+		utils.o \
 		qrc_res.o \
 		moc_window_cjj.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
@@ -154,7 +156,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		Music_player2.pro include/window_cjj.h src/main.cpp \
-		src/window_cjj.cpp
+		src/window_cjj.cpp \
+		src/utils.cpp
 QMAKE_TARGET  = main
 DESTDIR       = 
 TARGET        = main
@@ -376,7 +379,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents resources/res.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents include/window_cjj.h $(DISTDIR)/
-	$(COPY_FILE) --parents src/main.cpp src/window_cjj.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents src/main.cpp src/window_cjj.cpp src/utils.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents UI/cjj.ui $(DISTDIR)/
 
 
@@ -462,8 +465,13 @@ main.o: src/main.cpp include/window_cjj.h \
 
 window_cjj.o: src/window_cjj.cpp include/window_cjj.h \
 		include/qt_common.h \
-		include/ui_cjj.h
+		include/ui_cjj.h \
+		include/utils.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window_cjj.o src/window_cjj.cpp
+
+utils.o: src/utils.cpp include/utils.h \
+		include/qt_common.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o utils.o src/utils.cpp
 
 qrc_res.o: qrc_res.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_res.o qrc_res.cpp

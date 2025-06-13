@@ -23,11 +23,8 @@ public:
     void InitButton();
     void SetButtonStyle(QPushButton *button,const QString &filename,
         int w = 50,int h = 50);
-    void ConnectButton();
+    void ConnectSlot();
     void SetBackground(const QString &filename);
-    void CheckMultimediaService();
-    void DemoQSoundEffect(const QString &music_path);
-    void DemoQMediaMusic(const QString &music_path);
     void BuildMusicList(const QString &music_dir);
     void BeautifyMusicList();
     void UpdateMusic();
@@ -42,6 +39,8 @@ private slots:
     void HandlePreButton();
     void HandleNextButton();
     void HandlePlayList();
+    void HandleMusicPosition(qint64 position); // 处理音乐进度
+    void HandleMusicDuration(qint64 duration); // 处理音乐时长
 private:
     Ui::MainWindow* ui; // 指向ui的指针
     QMediaPlayer* music_player; // 音频播放器

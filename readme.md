@@ -21,6 +21,7 @@ c++开发练手项目
 - 2025-6.13
   - 修复音乐播放功能.
   - 添加音乐列表的渐进式动画.
+  - 添加音乐播放进度条.
 
 ### 环境问题
 
@@ -50,4 +51,17 @@ c++开发练手项目
 - .mp3转.wav
   ```shell
   ffmpeg -i <origin.mp3> <origin.wav>
+  ```
+
+- 信号绑定槽函数要确保所有的变量、函数都存在
+  错误例子
+  ```cpp
+  connect(music_player,&QMediaPlayer::positionChanged,this,&MainWindow::HandleMusicPosition); // 处理音乐进度
+  music_player = new QMediaPlayer(this)
+  ```
+
+  正确做法
+  ```cpp
+  music_player = new QMediaPlayer(this)
+  connect(music_player,&QMediaPlayer::positionChanged,this,&MainWindow::HandleMusicPosition); // 处理音乐进度
   ```

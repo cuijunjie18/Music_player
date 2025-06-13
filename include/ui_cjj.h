@@ -12,9 +12,11 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QWidget>
 
@@ -32,6 +34,11 @@ public:
     QPushButton *play_mode;
     QPushButton *play_list;
     QListWidget *music_list;
+    QWidget *layoutWidget1;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *current_time;
+    QSlider *music_Slider;
+    QLabel *total_time;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -39,6 +46,7 @@ public:
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
         MainWindow->resize(740, 528);
+        MainWindow->setStyleSheet(QString::fromUtf8(""));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         layoutWidget = new QWidget(centralwidget);
@@ -75,6 +83,28 @@ public:
         music_list = new QListWidget(centralwidget);
         music_list->setObjectName(QString::fromUtf8("music_list"));
         music_list->setGeometry(QRect(570, 30, 161, 281));
+        layoutWidget1 = new QWidget(centralwidget);
+        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
+        layoutWidget1->setGeometry(QRect(70, 350, 501, 19));
+        horizontalLayout_2 = new QHBoxLayout(layoutWidget1);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        current_time = new QLabel(layoutWidget1);
+        current_time->setObjectName(QString::fromUtf8("current_time"));
+
+        horizontalLayout_2->addWidget(current_time);
+
+        music_Slider = new QSlider(layoutWidget1);
+        music_Slider->setObjectName(QString::fromUtf8("music_Slider"));
+        music_Slider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_2->addWidget(music_Slider);
+
+        total_time = new QLabel(layoutWidget1);
+        total_time->setObjectName(QString::fromUtf8("total_time"));
+
+        horizontalLayout_2->addWidget(total_time);
+
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -93,6 +123,8 @@ public:
         next_button->setText(QString());
         play_mode->setText(QString());
         play_list->setText(QString());
+        current_time->setText(QCoreApplication::translate("MainWindow", "00: :29", nullptr));
+        total_time->setText(QCoreApplication::translate("MainWindow", "    04::30", nullptr));
     } // retranslateUi
 
 };

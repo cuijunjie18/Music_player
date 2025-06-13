@@ -16,6 +16,6 @@ INCLUDEPATH += include/
 # Input
 RESOURCES += resources/res.qrc
 FORMS += UI/cjj.ui
-SOURCES += src/main.cpp src/window_cjj.cpp
+SOURCES += src/main.cpp src/window_cjj.cpp src/utils.cpp
 HEADERS += include/window_cjj.h
 QT += core gui widgets multimedia multimediawidgets

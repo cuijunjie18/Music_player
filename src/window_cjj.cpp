@@ -1,5 +1,6 @@
 #include "window_cjj.h"
 #include "qt_common.h"
+#include "utils.h"
 #include <stdlib.h>
 
 MainWindow::MainWindow(QWidget* parent) :
@@ -25,7 +26,6 @@ MainWindow::MainWindow(QWidget* parent) :
 
     /* 初始化按钮 */
     InitButton();
-    ConnectButton();
 
     /* 构建歌曲列表 */
     QString music_dir = "/home/cjj/Music";
@@ -34,11 +34,14 @@ MainWindow::MainWindow(QWidget* parent) :
     ui->music_list->hide(); // 隐藏
 
     /* 检查多媒体服务是否可用 */
-    CheckMultimediaService();
+    CheckMultimediaService(this);
 
     /* 使用多媒体 */
     music_player = new QMediaPlayer(this);
     music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].filePath())); // 指向默认下标
+
+    /* 信号与槽函数绑定 */
+    ConnectSlot();
 }
 
 // 初始化按钮
@@ -82,13 +85,15 @@ void MainWindow::SetButtonStyle(QPushButton *button,const QString &filename,
     
 }
 
-// 按钮绑定槽函数
-void MainWindow::ConnectButton(){
+// 按钮/信号绑定槽函数
+void MainWindow::ConnectSlot(){
     connect(ui->open_button,&QPushButton::clicked,this,&MainWindow::HandleOpenButton);
     connect(ui->play_mode,&QPushButton::clicked,this,&MainWindow::HandlePlayMode);
     connect(ui->pre_button,&QPushButton::clicked,this,&MainWindow::HandlePreButton);
     connect(ui->next_button,&QPushButton::clicked,this,&MainWindow::HandleNextButton);
     connect(ui->play_list,&QPushButton::clicked,this,&MainWindow::HandlePlayList);
+    connect(music_player,&QMediaPlayer::positionChanged,this,&MainWindow::HandleMusicPosition); // 处理音乐进度
+    connect(music_player,&QMediaPlayer::durationChanged,this,&MainWindow::HandleMusicDuration); // 处理音乐时长
 }
 
 // 设置背景
@@ -111,33 +116,6 @@ void MainWindow::SetBackground(const QString &filename){
     QPalette palette = this->palette();
     palette.setBrush(QPalette::Window,QBrush(scale_pixmap));
     this->setPalette(palette); // 应用到窗口
-}
-
-// 检测multimedia_service
-void MainWindow::CheckMultimediaService(){
-    QMediaPlayer demo;
-    if (!demo.isAvailable()) {
-        QMessageBox::critical(this, "多媒体服务错误",
-            "无法加载多媒体服务：\n"
-            "1. 请确保已安装 gstreamer 插件\n"
-            "2. 检查 Qt 多媒体模块是否正确安装");
-        return;
-    }
-}
-
-// 使用QSoundEffect播放音乐： 仅支持.wav格式
-void MainWindow::DemoQSoundEffect(const QString &music_path){
-    // 多媒体不可用，用声音
-    QSoundEffect *effect = new QSoundEffect(this);
-    effect->setSource(QUrl::fromLocalFile(music_path));
-    effect->play();
-}
-
-// 使用QMediaPlayer播放音乐
-void MainWindow::DemoQMediaMusic(const QString &music_path){
-    music_player->setMedia(QUrl::fromLocalFile(music_path));
-    if (music_player->state() == QMediaPlayer::StoppedState) qDebug() << "Music is stopped" << "\n";
-    music_player->play();
 }
 
 // 美化Music_list的UI
@@ -267,6 +245,21 @@ void MainWindow::HandlePlayList(){
         ui->music_list->setHidden(!m_hide_flag);
     }
     m_hide_flag ^= 1;
+}
+// 槽函数参数要和信号函数的参数匹配
+void MainWindow::HandleMusicPosition(qint64 position){
+    // qDebug() << position << "\n";
+    /* position 以毫秒为单位*/
+    ui->music_Slider->setValue(position);
+    qint64 seconds = MillsencondsToSeconds(position);
+    ui->current_time->setText(Seconds2DurationFormat(seconds));
+}
+void MainWindow::HandleMusicDuration(qint64 duaration){
+    /* 设置当前duration的里程*/
+    // qDebug() << duaration << "\n";
+    ui->music_Slider->setRange(0,duaration);
+    qint64 seconds = MillsencondsToSeconds(duaration);
+    ui->total_time->setText(Seconds2DurationFormat(seconds));
 }
 
 // 动画显示音乐列表
