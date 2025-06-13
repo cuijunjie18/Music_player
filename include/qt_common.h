@@ -22,4 +22,7 @@
 #include <QDir>
 #include <QFileInfo>
 
+// 动画
+#include <QPropertyAnimation>
+
 #endif

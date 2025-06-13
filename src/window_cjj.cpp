@@ -4,6 +4,7 @@
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent),
+    m_hide_flag(true), // 初始隐藏播放列表
     ui(new Ui::MainWindow),
     play_mode(Sequence_mode) // 初始化为顺序播放
 {
@@ -26,15 +27,18 @@ MainWindow::MainWindow(QWidget* parent) :
     InitButton();
     ConnectButton();
 
+    /* 构建歌曲列表 */
+    QString music_dir = "/home/cjj/Music";
+    BuildMusicList(music_dir);
+    BeautifyMusicList();
+    ui->music_list->hide(); // 隐藏
+
     /* 检查多媒体服务是否可用 */
     CheckMultimediaService();
 
-    // 使用多媒体
+    /* 使用多媒体 */
     music_player = new QMediaPlayer(this);
-
-    // 构建歌曲列表
-    QString music_dir = "/home/cjj/Music";
-    BuildMusicList(music_dir);
+    music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].filePath())); // 指向默认下标
 }
 
 // 初始化按钮
@@ -136,6 +140,17 @@ void MainWindow::DemoQMediaMusic(const QString &music_path){
     music_player->play();
 }
 
+// 美化Music_list的UI
+void MainWindow::BeautifyMusicList(){
+    ui->music_list->setStyleSheet(
+        "QListWidget{"
+        "border: none;"
+        "border-radius: 20px;"
+        "background: rgba(255,255,255,0.7);"
+        "}"
+    );
+}
+
 // 获取音乐列表
 void MainWindow::BuildMusicList(const QString &music_dir){
     QDir dir(music_dir);
@@ -217,14 +232,12 @@ void MainWindow::HandlePreButton(){
         break;
     }
     UpdateMusic();
-    qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
+    // qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
 }
 void MainWindow::HandleNextButton(){
     switch (play_mode) {
     case Sequence_mode:
         music_index = (music_index + 1) % music_nums;
-        // music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].fileName()));
-        // music_player->play();
         break;
     case Random_mode:{
         int pre_save = music_index;
@@ -239,16 +252,58 @@ void MainWindow::HandleNextButton(){
         qWarning() << "Play mode is not exist!" << "\n";
         break;
     }
-    qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
+    // qDebug() << music_index << " " << music_list[music_index].fileName() << "\n";
     UpdateMusic();
 }
 void MainWindow::HandlePlayList(){
-    
+    if (m_hide_flag){
+        ui->music_list->setHidden(!m_hide_flag);
+
+        // 以动画的方式渐入
+        this->ShowMusicList(ui->music_list);
+    }
+    else{
+        this->HideMusicList(ui->music_list); // 先执行动画！！！
+        ui->music_list->setHidden(!m_hide_flag);
+    }
+    m_hide_flag ^= 1;
+}
+
+// 动画显示音乐列表
+void MainWindow::ShowMusicList(QWidget* window){
+    // 初始化动画的参数
+    QPropertyAnimation animation(window,"pos");
+    animation.setDuration(300);
+    animation.setStartValue(QPoint(this->width(),0));
+    animation.setEndValue(QPoint(this->width() - ui->music_list->width(),0));
+
+    // 开始绘制动画
+    animation.start();
+    QEventLoop loop;
+    connect(&animation,&QPropertyAnimation::finished,&loop,&QEventLoop::quit);
+    loop.exec(); // 阻塞当前函数执行，即不会并行执行其他函数了
+}
+
+// 动画隐藏音乐列表
+void MainWindow::HideMusicList(QWidget *window){
+    // 初始化动画参数
+    QPropertyAnimation animation(window,"pos");
+    animation.setDuration(300);
+    animation.setStartValue(QPoint(this->width() - ui->music_list->width(),0));
+    animation.setEndValue(QPoint(this->width(),0));
+
+    // 开始绘制动画
+    animation.start();
+    QEventLoop loop;
+    connect(&animation,&QPropertyAnimation::finished,&loop,&QEventLoop::quit);
+    loop.exec();
 }
 
 // 用music_index更新音乐UI和播放
 void MainWindow::UpdateMusic(){
     ui->music_list->setCurrentRow(music_index);
+    music_player->setMedia(QUrl::fromLocalFile(music_list[music_index].filePath()));
+    HandleOpenButton(); // 切换歌曲自动开启播放
 }
 
 // 析构函数，释放类资源

@@ -29,9 +29,13 @@ public:
     void DemoQSoundEffect(const QString &music_path);
     void DemoQMediaMusic(const QString &music_path);
     void BuildMusicList(const QString &music_dir);
+    void BeautifyMusicList();
     void UpdateMusic();
+    void ShowMusicList(QWidget* window); // 动画显示音乐列表
+    void HideMusicList(QWidget* window); // 动画隐藏音乐列表
 
     /*类属性*/
+    bool m_hide_flag;
 private slots:
     void HandleOpenButton();
     void HandlePlayMode();

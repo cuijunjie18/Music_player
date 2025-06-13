@@ -74,7 +74,7 @@ public:
 
         music_list = new QListWidget(centralwidget);
         music_list->setObjectName(QString::fromUtf8("music_list"));
-        music_list->setGeometry(QRect(575, 30, 161, 281));
+        music_list->setGeometry(QRect(570, 30, 161, 281));
         MainWindow->setCentralWidget(centralwidget);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
